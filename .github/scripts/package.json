@@ -1,0 +1,21 @@
+{
+  "name": "roadmap-sync",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Menyinkronkan .github/roadmap.yml menjadi GitHub Issues, sub-issue, dan Project board.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "validate": "node sync-roadmap.mjs --validate-only",
+    "dry-run": "node sync-roadmap.mjs --dry-run"
+  },
+  "dependencies": {
+    "@octokit/graphql": "^8.2.2",
+    "@octokit/plugin-retry": "^7.2.1",
+    "@octokit/plugin-throttling": "^9.6.1",
+    "@octokit/rest": "^21.1.1",
+    "js-yaml": "^4.1.0"
+  }
+}

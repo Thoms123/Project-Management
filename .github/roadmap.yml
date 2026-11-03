@@ -1,0 +1,606 @@
+# ===========================================================================
+# Roadmap — Rilis Tanpa Lupa
+# ===========================================================================
+# Manifest ini adalah SUMBER TUNGGAL untuk workflow "Roadmap Sync".
+# Diturunkan dari PRD lokal (PRD/features/*.md) yang sengaja tidak di-push
+# karena repositori ini publik. Isinya hanya epic, task, dan kriteria selesai
+# — bukan arsitektur, schema database, atau detail internal lainnya.
+#
+# `key` adalah KONTRAK IDEMPOTENSI. Jangan pernah mengubah key yang sudah
+# tersinkron: key itulah yang dipakai script untuk mengenali Issue yang sudah
+# ada (lewat marker <!-- roadmap-key: ... --> di body Issue). Mengganti key
+# lama akan membuat Issue duplikat. Menambah key baru aman.
+#
+# Mengubah file ini: jalankan ulang workflow Roadmap Sync. Task baru akan
+# dibuat; task yang sudah ada dilewati.
+# ===========================================================================
+
+project:
+  title: "Rilis Tanpa Lupa — Roadmap"
+  owner: Thoms123
+  repo: Thoms123/Project-Management
+  description: >-
+    Backlog pengembangan aplikasi manajemen proyek yang mengumpulkan seluruh
+    kebutuhan rilis — rencana, tugas, env, database, dan dokumen — dalam satu
+    tempat.
+
+phases:
+  - id: 1
+    name: Pondasi Proyek
+    color: "1D4ED8"
+  - id: 2
+    name: Kesiapan Teknis
+    color: "B45309"
+  - id: 3
+    name: Rilis & Ekspor
+    color: "15803D"
+  - id: 4
+    name: Akun & Kolaborasi
+    color: "6E40C9"
+
+areas:
+  frontend:
+    label: "area:frontend"
+    color: "DCFCE7"
+    name: Frontend
+  backend:
+    label: "area:backend"
+    color: "FEF3C7"
+    name: Backend
+
+epics:
+  # =========================================================================
+  # FASE 1 — Pondasi Proyek
+  # =========================================================================
+  - key: F01
+    title: Ruang Proyek
+    slug: ruang-proyek
+    phase: 1
+    summary: >-
+      Satu layar utama yang merangkum rencana, tugas, dan kesiapan rilis
+      proyekmu.
+    goal: >-
+      Satu layar utama yang merangkum rencana, tugas, dan kesiapan rilis sebuah
+      proyek agar developer langsung tahu kondisinya tanpa mencari ke banyak
+      tempat.
+    done_when:
+      - Pengguna membuka satu halaman Ruang Proyek dan langsung melihat nama perusahaan, nama proyek, serta sprint aktifnya.
+      - "Halaman menampilkan sekilas status tiga tahap: rencana, pengembangan, dan rilis."
+      - Halaman menampilkan penanda kesiapan rilis (misal "siap" atau "ada yang kurang") beserta jumlah hal yang belum lengkap.
+      - Pengguna dapat berpindah tahap, mengganti proyek/sprint, dan membuka daftar kekurangan rilis langsung dari halaman ini.
+      - Tampilan tetap rapi dan bisa dipakai di layar kecil maupun besar.
+    subfeatures:
+      - key: SF1
+        title: Ringkasan Proyek
+        summary: Lihat sekilas status rencana, pengerjaan, dan rilis satu proyek tanpa mencari ke banyak tempat.
+        goal: >-
+          Memberi gambaran sekilas kondisi satu proyek (rencana, pengerjaan,
+          rilis) dalam satu pandangan agar pengguna tidak perlu membuka menu
+          lain.
+        done_when:
+          - Kartu ringkasan menampilkan nama perusahaan, nama proyek, dan sprint aktif.
+          - Tiap tahap (Plan, Dev, Release) punya indikator status singkat, misal jumlah dokumen rencana terisi, jumlah tugas per status, dan jumlah dokumen rilis lengkap.
+          - Angka ditampilkan dalam format ringkas (misal "5 tugas selesai dari 8").
+          - Bila data suatu tahap masih kosong, muncul keterangan jelas bahwa tahap itu belum diisi.
+      - key: SF2
+        title: Tab Plan–Dev–Release
+        summary: Berpindah antar tahap proyek (rencana, pengembangan, rilis) dalam satu halaman.
+        goal: >-
+          Memungkinkan pengguna berpindah antar tahap rencana, pengembangan, dan
+          rilis dalam satu halaman tanpa kehilangan konteks proyek.
+        done_when:
+          - Terdapat tiga tab berlabel Plan, Dev, dan Release yang terlihat jelas dan bisa diklik.
+          - Tab yang sedang aktif terlihat berbeda dari tab lainnya.
+          - Isi halaman berganti sesuai tab yang dipilih tanpa memuat ulang seluruh halaman.
+          - Pilihan tab tetap konsisten ketika pengguna berpindah proyek atau sprint.
+      - key: SF3
+        title: Cek Kesiapan Rilis
+        summary: Lihat daftar hal yang belum lengkap sebelum aplikasi benar-benar dirilis.
+        goal: >-
+          Menampilkan daftar hal yang belum lengkap sebelum rilis sehingga
+          pengguna tahu persis apa yang harus dibereskan lebih dulu.
+        done_when:
+          - Halaman menampilkan daftar butir yang belum lengkap (misal env belum siap, dokumen wajib belum ada) dengan keterangan singkat tiap butir.
+          - Setiap butir bisa diklik untuk menuju bagian terkait agar pengguna bisa langsung melengkapinya.
+          - Bila semua sudah lengkap, tampil pesan jelas bahwa proyek siap dirilis.
+          - Jumlah butir yang belum lengkap terlihat di ringkasan halaman.
+      - key: SF4
+        title: Pilih Proyek & Sprint
+        summary: Berganti proyek atau sprint aktif dengan cepat lewat pencarian sederhana.
+        goal: >-
+          Memudahkan pengguna berganti proyek atau sprint aktif dengan cepat
+          lewat pencarian sederhana.
+        done_when:
+          - Terdapat pemilih proyek dengan kolom pencarian nama proyek dan menampilkan hasil yang cocok saat mengetik.
+          - Terdapat pemilih sprint aktif yang hanya menampilkan sprint milik proyek terpilih.
+          - Setelah proyek atau sprint dipilih, seluruh isi halaman langsung mengikuti pilihan tersebut.
+          - Pilihan proyek dan sprint terakhir tetap tersimpan saat pengguna kembali membuka aplikasi.
+    tasks:
+      - { key: F01-T01, title: Bangun halaman utama Ruang Proyek, area: frontend }
+      - { key: F01-T02, title: Buat kartu ringkasan status proyek, area: frontend, subfeature: SF1 }
+      - { key: F01-T03, title: Buat indikator kesiapan rilis ringkas, area: frontend, subfeature: SF3 }
+      - { key: F01-T04, title: Buat tab Plan Dev Release, area: frontend, subfeature: SF2 }
+      - { key: F01-T05, title: Buat isi tab Plan dan Dev tiruan, area: frontend, subfeature: SF2 }
+      - { key: F01-T06, title: Buat panel daftar kekurangan rilis, area: frontend, subfeature: SF3 }
+      - { key: F01-T07, title: Buat pemilih proyek dengan pencarian, area: frontend, subfeature: SF4 }
+      - { key: F01-T08, title: Buat pemilih sprint aktif terfilter, area: frontend, subfeature: SF4 }
+      - { key: F01-T09, title: Sinkronkan pilihan proyek sprint ke halaman, area: frontend, subfeature: SF4 }
+      - { key: F01-T10, title: Simpan pilihan terakhir di localStorage, area: frontend, subfeature: SF4 }
+      - { key: F01-T11, title: Rapikan tampilan responsif Ruang Proyek, area: frontend }
+      - { key: F01-T12, title: Buat migrasi tabel companies projects sprints, area: backend }
+      - { key: F01-T13, title: Buat migrasi tabel dokumen tugas release, area: backend }
+      - { key: F01-T14, title: Buat modul agregasi ringkasan proyek, area: backend, subfeature: SF1 }
+      - { key: F01-T15, title: Buat endpoint overview Ruang Proyek, area: backend, subfeature: SF1 }
+      - { key: F01-T16, title: Buat endpoint pencarian proyek, area: backend, subfeature: SF4 }
+      - { key: F01-T17, title: Buat endpoint sprint per proyek, area: backend, subfeature: SF4 }
+      - { key: F01-T18, title: Buat endpoint konten tahap Plan Dev, area: backend, subfeature: SF2 }
+      - { key: F01-T19, title: Buat endpoint daftar kekurangan rilis, area: backend, subfeature: SF3 }
+
+  - key: F02
+    title: Papan Tugas & Cabang
+    slug: papan-tugas-cabang
+    phase: 1
+    summary: Atur tugas dan cabang kerja tiap fitur agar pengerjaan tidak tertukar.
+    goal: >-
+      Mencatat dan mengatur tugas serta cabang kerja tiap fitur dalam satu papan
+      agar pengerjaan proyek tidak tertukar dan mudah dilacak.
+    done_when:
+      - Pengguna dapat melihat tugas tersusun dalam kolom status dan memindahkannya sesuai progres.
+      - Setiap tugas dapat menyimpan nama cabang fitur dan cabang tugas.
+      - Setiap tugas dapat diberi status dan prioritas yang terlihat jelas.
+      - Setiap tugas dapat dihubungkan ke rencana proyek asal.
+      - Perubahan tugas tersimpan dan tampil konsisten saat papan dibuka kembali.
+    subfeatures:
+      - key: SF1
+        title: Papan Tugas
+        summary: Susun tugas dalam kolom status supaya jelas apa yang sedang dan belum dikerjakan.
+        goal: >-
+          Menyusun tugas dalam kolom status agar pengguna tahu apa yang belum,
+          sedang, dan sudah dikerjakan.
+        done_when:
+          - Tugas tampil dalam kolom status yang mudah dipahami, seperti belum mulai, dikerjakan, dan selesai.
+          - Pengguna dapat membuat, mengubah, dan memindahkan tugas antar kolom.
+          - Papan menampilkan tugas sesuai proyek dan sprint aktif.
+      - key: SF2
+        title: Cabang Fitur & Tugas
+        summary: Catat nama cabang kerja untuk setiap fitur dan tugas agar mudah dilacak.
+        goal: Mencatat nama cabang kerja untuk setiap fitur dan tugas agar mudah dilacak.
+        done_when:
+          - Setiap tugas memiliki isian nama cabang fitur dan cabang tugas.
+          - Nama cabang yang tersimpan tampil pada detail atau daftar tugas.
+          - Pengguna dapat mengubah nama cabang tanpa kehilangan data tugas.
+      - key: SF3
+        title: Status & Prioritas
+        summary: Tandai tugas sebagai mendesak, sedang, atau santai sesuai kebutuhannya.
+        goal: >-
+          Menandai tugas berdasarkan status pengerjaan dan tingkat prioritas agar
+          urutan kerja jelas.
+        done_when:
+          - Pengguna dapat memilih status tugas dan prioritas mendesak, sedang, atau santai.
+          - Status dan prioritas tampil sebagai label yang mudah dibedakan.
+          - Pilihan status dan prioritas tersimpan serta terlihat saat papan dibuka kembali.
+      - key: SF4
+        title: Tautan ke Rencana
+        summary: Hubungkan tiap tugas ke rencana proyek asalnya supaya konteksnya tidak hilang.
+        goal: >-
+          Menghubungkan tiap tugas ke rencana proyek asal agar konteks pekerjaan
+          tidak hilang.
+        done_when:
+          - Saat membuat atau mengubah tugas, pengguna dapat memilih rencana proyek terkait.
+          - Tugas yang sudah tertaut menampilkan informasi rencana asalnya.
+          - Tautan rencana dapat diubah atau dilepas tanpa menghapus tugas.
+    tasks:
+      - { key: F02-T01, title: Buat halaman papan tugas dengan data tiruan, area: frontend, subfeature: SF1 }
+      - { key: F02-T02, title: Implementasi pindah dan CRUD tugas tiruan, area: frontend, subfeature: SF1 }
+      - { key: F02-T03, title: Tambah filter proyek dan sprint aktif, area: frontend, subfeature: SF1 }
+      - { key: F02-T04, title: Buat form detail tugas dengan isian cabang, area: frontend, subfeature: SF2 }
+      - { key: F02-T05, title: Tampilkan label cabang fitur dan tugas, area: frontend, subfeature: SF2 }
+      - { key: F02-T06, title: Buat komponen label status dan prioritas, area: frontend, subfeature: SF3 }
+      - { key: F02-T07, title: Terapkan pemilih status dan prioritas tugas, area: frontend, subfeature: SF3 }
+      - { key: F02-T08, title: Buat pemilih rencana proyek pada form tugas, area: frontend, subfeature: SF4 }
+      - { key: F02-T09, title: Kelola tautan rencana pada detail tugas, area: frontend, subfeature: SF4 }
+      - { key: F02-T10, title: Buat skema tugas, cabang, dan migrasi, area: backend }
+      - { key: F02-T11, title: Buat modul service CRUD tugas dan cabang, area: backend, subfeature: SF1 }
+      - { key: F02-T12, title: Buat endpoint papan tugas per proyek sprint, area: backend, subfeature: SF1 }
+      - { key: F02-T13, title: Buat endpoint pindah kolom dan prioritas tugas, area: backend, subfeature: SF3 }
+      - { key: F02-T14, title: Buat endpoint tautan rencana pada tugas, area: backend, subfeature: SF4 }
+      - { key: F02-T15, title: Tambah validasi dan uji API papan tugas, area: backend }
+
+  - key: F03
+    title: Rencana Proyek
+    slug: rencana-proyek
+    phase: 1
+    summary: Simpan dokumen dan gambaran besar proyek di satu tempat sejak awal.
+    goal: >-
+      Menyimpan seluruh dokumen dan gambaran besar proyek di satu tempat sejak
+      awal, agar konteks rencana selalu bisa dibuka kembali kapan pun
+      dibutuhkan.
+    done_when:
+      - Pengguna dapat mengisi dan melihat dokumen PRD, tautan desain, mind map sprint, dan catatan rencana dalam satu halaman rencana proyek.
+      - Setiap data rencana yang tersimpan tetap ada dan bisa dibuka kembali setelah pengguna keluar dan masuk lagi.
+      - Halaman rencana menampilkan penanda jelas untuk bagian yang masih kosong, sehingga pengguna tahu apa yang belum diisi.
+      - Tersedia tombol simpan yang memberi konfirmasi saat data rencana berhasil diperbarui.
+    subfeatures:
+      - key: SF1
+        title: Dokumen PRD
+        summary: Simpan tautan atau file PRD proyek agar selalu bisa dibuka saat dibutuhkan.
+        goal: >-
+          Menyimpan dokumen PRD proyek (lewat tautan atau file) agar selalu bisa
+          dibuka saat dibutuhkan.
+        done_when:
+          - "Pengguna dapat menambahkan PRD dengan dua cara: menempel tautan atau mengunggah file."
+          - PRD yang tersimpan tampil sebagai tautan/berkas yang bisa dibuka langsung dari halaman rencana.
+          - Pengguna dapat mengganti atau menghapus PRD yang sudah ada.
+      - key: SF2
+        title: Tautan Desain
+        summary: Catat tautan desain web atau tampilan aplikasi yang jadi acuan pengerjaan.
+        goal: Mencatat tautan desain web atau tampilan aplikasi yang jadi acuan pengerjaan.
+        done_when:
+          - Pengguna dapat menyimpan satu tautan desain dan melihatnya kembali di halaman rencana.
+          - Tautan desain tampil sebagai tombol/teks yang bisa diklik untuk membuka halaman desain.
+          - Bila tautan belum diisi, halaman menampilkan keterangan bahwa tautan desain belum ada.
+      - key: SF3
+        title: Mind Map Sprint
+        summary: Tentukan proyek ini untuk perusahaan apa, proyek apa, dan sprint ke berapa sebelum dieksekusi.
+        goal: >-
+          Menentukan konteks dasar proyek — perusahaan apa, proyek apa, dan
+          sprint ke berapa — sebelum pekerjaan dieksekusi.
+        done_when:
+          - Pengguna dapat mengisi nama perusahaan, nama proyek, dan nomor sprint pada satu form mind map sprint.
+          - Konteks yang tersimpan tampil ringkas di bagian atas halaman rencana (mis. "Perusahaan — Proyek — Sprint 2").
+          - Pengguna dapat mengubah konteks tersebut kapan saja dan perubahan langsung terlihat.
+      - key: SF4
+        title: Catatan Rencana
+        summary: Tulis poin-poin penting rencana supaya tidak perlu mengingat-ingat lagi.
+        goal: Menulis poin-poin penting rencana agar tidak perlu mengingat-ingat lagi.
+        done_when:
+          - Pengguna dapat menulis dan menyimpan catatan rencana dalam kolom teks panjang.
+          - Catatan yang tersimpan tampil utuh setelah halaman dibuka kembali.
+          - Pengguna dapat memperbarui catatan, dan tersedia konfirmasi saat catatan berhasil disimpan.
+    tasks:
+      - { key: F03-T01, title: Bangun halaman Rencana Proyek dengan data tiruan, area: frontend }
+      - { key: F03-T02, title: Buat form Mind Map Sprint state tiruan, area: frontend, subfeature: SF3 }
+      - { key: F03-T03, title: Buat section Dokumen PRD tautan dan file, area: frontend, subfeature: SF1 }
+      - { key: F03-T04, title: Buat section Tautan Desain dengan empty state, area: frontend, subfeature: SF2 }
+      - { key: F03-T05, title: Buat section Catatan Rencana dengan textarea, area: frontend, subfeature: SF4 }
+      - { key: F03-T06, title: Tambahkan tombol simpan dan toast konfirmasi, area: frontend, subfeature: SF4 }
+      - { key: F03-T07, title: Buat skema dan migrasi tabel rencana proyek, area: backend }
+      - { key: F03-T08, title: Buat service validasi dan penyimpanan rencana proyek, area: backend }
+      - { key: F03-T09, title: Buat endpoint GET dan PATCH rencana proyek, area: backend }
+      - { key: F03-T10, title: Integrasikan penyimpanan file PRD dengan storage, area: backend, subfeature: SF1 }
+      - { key: F03-T11, title: Buat endpoint upload file PRD, area: backend, subfeature: SF1 }
+      - { key: F03-T12, title: Buat endpoint hapus dan ganti PRD, area: backend, subfeature: SF1 }
+
+  # =========================================================================
+  # FASE 2 — Kesiapan Teknis
+  # =========================================================================
+  - key: F04
+    title: Lini Masa Proyek
+    slug: lini-masa-proyek
+    phase: 2
+    summary: Lihat jadwal dan target rilis proyek secara berurutan.
+    goal: >-
+      Menampilkan jadwal dan target rilis proyek secara berurutan agar pengguna
+      tahu kapan pekerjaan dimulai, kapan harus selesai, dan kapan tiap sprint
+      dirilis — sehingga tidak ada tenggat yang terlewat diam-diam.
+    done_when:
+      - Pengguna dapat melihat daftar lini masa proyek dan sprint secara berurutan dari tanggal mulai paling awal.
+      - Setiap baris lini masa menampilkan tanggal mulai, target selesai, dan target rilis sprint dalam format tanggal yang mudah dibaca (mis. 12 Feb 2025).
+      - Pekerjaan yang mendekati atau melewati tenggat diberi tanda yang terlihat jelas (mis. label "Mendekati tenggat" atau "Terlambat").
+      - Pengguna dapat mengubah tanggal mulai, target selesai, dan target rilis langsung dari tampilan lini masa.
+    subfeatures:
+      - key: SF1
+        title: Jadwal Mulai–Selesai
+        summary: Tentukan tanggal mulai dan target selesai tiap proyek maupun sprint.
+        goal: >-
+          Memungkinkan pengguna menentukan tanggal mulai dan target selesai untuk
+          proyek maupun tiap sprint agar rentang waktu pekerjaan tercatat jelas.
+        done_when:
+          - Pengguna dapat mengisi dan menyimpan tanggal mulai serta target selesai pada proyek dan pada setiap sprint.
+          - Tanggal yang tersimpan langsung tampil di lini masa dalam format yang mudah dibaca.
+          - Bila target selesai lebih awal dari tanggal mulai, muncul peringatan dan data tidak tersimpan.
+      - key: SF2
+        title: Target Rilis per Sprint
+        summary: Tandai kapan setiap sprint dijadwalkan rilis agar tidak meleset diam-diam.
+        goal: >-
+          Memungkinkan pengguna menandai tanggal rilis yang direncanakan untuk
+          setiap sprint agar jadwal rilis tidak meleset tanpa disadari.
+        done_when:
+          - Pengguna dapat menetapkan dan mengubah tanggal target rilis pada tiap sprint.
+          - Target rilis tiap sprint tampil berdampingan dengan rentang tanggal sprint di lini masa.
+          - Sprint yang belum memiliki target rilis ditandai jelas (mis. "Belum ditentukan").
+      - key: SF3
+        title: Penanda Mendekati Tenggat
+        summary: Dapatkan tanda saat sebuah pekerjaan mendekati atau melewati tenggat.
+        goal: >-
+          Memberi tanda otomatis saat sebuah proyek atau sprint mendekati atau
+          melewati tenggat, sehingga pengguna bisa segera bertindak.
+        done_when:
+          - Pekerjaan yang tenggatnya tinggal beberapa hari diberi label peringatan yang terlihat (mis. "Mendekati tenggat").
+          - Pekerjaan yang sudah melewati tenggat diberi label berbeda yang lebih menonjol (mis. "Terlambat") disertai jumlah hari keterlambatan.
+          - Tanda peringatan muncul konsisten di lini masa proyek dan sprint, serta berubah otomatis mengikuti tanggal hari ini.
+    tasks:
+      - { key: F04-T01, title: Buat halaman lini masa proyek tiruan, area: frontend }
+      - { key: F04-T02, title: Sediakan edit tanggal mulai dan target selesai, area: frontend, subfeature: SF1 }
+      - { key: F04-T03, title: Atur target rilis sprint di lini masa, area: frontend, subfeature: SF2 }
+      - { key: F04-T04, title: Tampilkan badge mendekati tenggat dan terlambat, area: frontend, subfeature: SF3 }
+      - { key: F04-T05, title: Buat migrasi kolom tanggal lini masa proyek, area: backend }
+      - { key: F04-T06, title: Buat API baca ubah tanggal lini masa, area: backend, subfeature: SF1 }
+      - { key: F04-T07, title: Validasi tanggal mulai dan target selesai, area: backend, subfeature: SF1 }
+      - { key: F04-T08, title: Hitung status tenggat di service lini masa, area: backend, subfeature: SF3 }
+
+  - key: F05
+    title: Daftar Rahasia
+    slug: daftar-rahasia
+    phase: 2
+    summary: Kumpulkan daftar variabel rahasia dan catatan database supaya tidak ada yang terlewat saat rilis.
+    goal: >-
+      Menyatukan semua variabel rahasia dan catatan database proyek dalam satu
+      tempat agar saat rilis tidak ada konfigurasi yang kelupaan.
+    done_when:
+      - Pengguna dapat melihat satu daftar berisi seluruh variabel env dan catatan database milik proyek yang sedang dipilih.
+      - Setiap baris menampilkan nama/judulnya secara jelas, sementara nilai sensitifnya tampil tersamar secara default.
+      - Pengguna dapat menambah, mengubah, dan menghapus isi daftar tersebut, dan perubahan langsung terlihat di daftar.
+      - Tersedia penanda status "sudah siap" per baris yang terlihat jelas (mis. ikon centang) untuk dipakai di checklist sebelum rilis.
+    subfeatures:
+      - key: SF1
+        title: Daftar Variabel Env
+        summary: Catat semua nama variabel lingkungan yang dibutuhkan aplikasi dalam satu daftar.
+        goal: >-
+          Mencatat semua nama variabel lingkungan yang dibutuhkan aplikasi dalam
+          satu daftar agar tidak perlu mencari-cari lagi saat menyiapkan rilis.
+        done_when:
+          - Pengguna dapat menambah variabel env baru dengan mengisi nama variabel dan nilainya.
+          - Daftar variabel env tampil berurutan dan dapat diubah atau dihapus per baris.
+          - Bila daftar masih kosong, tampil pesan ajakan mengisi agar pengguna tahu harus mulai dari mana.
+      - key: SF2
+        title: Catatan Database
+        summary: Simpan nama database dan query penting agar mudah ditemukan saat dibutuhkan.
+        goal: >-
+          Menyimpan nama database dan query penting dalam satu daftar agar mudah
+          ditemukan kembali saat dibutuhkan.
+        done_when:
+          - Pengguna dapat menambah catatan database berisi nama database dan isi query pentingnya.
+          - Setiap catatan dapat dibuka, diubah, dan dihapus dari daftar.
+          - Daftar catatan database tampil dengan nama database sebagai judul yang mudah dipindai.
+      - key: SF3
+        title: Penyamaran Nilai Rahasia
+        summary: Sembunyikan nilai sensitif sehingga hanya terlihat oleh yang berhak.
+        goal: Menyembunyikan nilai sensitif secara default agar hanya terlihat oleh pengguna yang berhak.
+        done_when:
+          - Nilai rahasia pada variabel env dan query database tampil tersamar (mis. berupa titik-titik) saat daftar dibuka.
+          - Tersedia tombol untuk menampilkan nilai sesaat, dan nilai kembali tersamar ketika disembunyikan lagi.
+          - Pengguna yang tidak berhak tidak dapat melihat nilai asli, hanya bentuk tersamarnya.
+      - key: SF4
+        title: Checklist Sebelum Rilis
+        summary: Pastikan semua env dan database sudah disiapkan sebelum proses rilis dimulai.
+        goal: >-
+          Memberi kepastian bahwa semua env dan database sudah disiapkan sebelum
+          proses rilis dimulai.
+        done_when:
+          - Tersedia tampilan checklist yang mencantumkan setiap variabel env dan catatan database beserta status siap/belum siapnya.
+          - Pengguna dapat menandai tiap baris sebagai "sudah siap" dan statusnya langsung terlihat di checklist.
+          - Checklist menampilkan jumlah item yang belum siap secara jelas (mis. "3 dari 10 belum siap") agar kekurangan mudah terlihat.
+    tasks:
+      - { key: F05-T01, title: Bangun halaman Daftar Rahasia dengan data mock, area: frontend }
+      - { key: F05-T02, title: Buat komponen daftar variabel env mock, area: frontend, subfeature: SF1 }
+      - { key: F05-T03, title: Tambahkan form tambah dan ubah env mock, area: frontend, subfeature: SF1 }
+      - { key: F05-T04, title: Buat komponen daftar catatan database mock, area: frontend, subfeature: SF2 }
+      - { key: F05-T05, title: Tambahkan form catatan database mock, area: frontend, subfeature: SF2 }
+      - { key: F05-T06, title: Implementasikan penyamaran nilai sensitif dengan mock, area: frontend, subfeature: SF3 }
+      - { key: F05-T07, title: Bangun checklist rilis dari data mock, area: frontend, subfeature: SF4 }
+      - { key: F05-T08, title: Tambahkan aksi tandai siap pada checklist mock, area: frontend, subfeature: SF4 }
+      - { key: F05-T09, title: Buat migrasi tabel daftar rahasia proyek, area: backend }
+      - { key: F05-T10, title: Buat service enkripsi dan penyamaran nilai, area: backend, subfeature: SF3 }
+      - { key: F05-T11, title: Terapkan otorisasi akses per proyek, area: backend, subfeature: SF3 }
+      - { key: F05-T12, title: Buat endpoint daftar rahasia tersamar, area: backend, subfeature: SF3 }
+      - { key: F05-T13, title: Buat endpoint tambah dan ubah item rahasia, area: backend, subfeature: SF1 }
+      - { key: F05-T14, title: Buat endpoint hapus item rahasia, area: backend, subfeature: SF1 }
+      - { key: F05-T15, title: Buat endpoint tampilkan nilai rahasia terotorisasi, area: backend, subfeature: SF3 }
+      - { key: F05-T16, title: Buat endpoint tandai status siap item, area: backend, subfeature: SF4 }
+      - { key: F05-T17, title: Siapkan data contoh daftar rahasia, area: backend }
+
+  - key: F06
+    title: Catatan Masalah Teknis
+    slug: catatan-masalah-teknis
+    phase: 2
+    summary: Tulis kendala dan penghambat teknis agar tidak lupa dan mudah dicari lagi.
+    goal: >-
+      Menyediakan satu tempat untuk mencatat kendala teknis beserta penyebab dan
+      solusinya agar mudah ditemukan kembali saat pengembangan maupun sebelum
+      rilis.
+    done_when:
+      - Pengguna dapat membuat, melihat, mengubah, dan menghapus catatan masalah teknis pada proyek aktif.
+      - Setiap catatan memuat judul kendala, penyebab, solusi, dan penanda penghambat.
+      - Catatan dapat dihubungkan ke tugas terkait dan ditampilkan pada riwayat tugas tersebut.
+      - Pengguna dapat mencari catatan berdasarkan kata kunci dan menyaringnya berdasarkan status penghambat.
+      - Catatan yang ditandai penghambat terlihat jelas pada daftar catatan.
+    subfeatures:
+      - key: SF1
+        title: Tulis Catatan Kendala
+        summary: Catat masalah teknis yang muncul beserta penyebab dan solusinya.
+        goal: >-
+          Mencatat masalah teknis lengkap dengan penyebab dan solusinya agar tidak
+          lupa dan bisa dibuka kembali.
+        done_when:
+          - Form catatan memiliki isian judul kendala, penyebab, dan solusi.
+          - Catatan baru muncul di daftar masalah teknis proyek aktif setelah disimpan.
+          - Pengguna dapat mengubah dan menghapus catatan yang sudah dibuat.
+      - key: SF2
+        title: Tandai Penghambat
+        summary: Beri tanda khusus pada masalah yang benar-benar menghentikan pekerjaan.
+        goal: >-
+          Menandai masalah yang benar-benar menghentikan pekerjaan agar
+          prioritasnya terlihat jelas.
+        done_when:
+          - Setiap catatan memiliki pilihan penghambat yang bisa diaktifkan atau dinonaktifkan.
+          - Catatan penghambat diberi tanda visual berbeda pada daftar catatan.
+          - Perubahan tanda penghambat tersimpan dan terlihat saat catatan dibuka kembali.
+      - key: SF3
+        title: Cari & Saring Catatan
+        summary: Temukan kembali catatan lama berdasarkan kata kunci atau statusnya.
+        goal: Menemukan kembali catatan lama dengan cepat berdasarkan kata kunci atau statusnya.
+        done_when:
+          - Tersedia kolom pencarian yang menyaring catatan berdasarkan judul atau isi catatan.
+          - Tersedia saringan status untuk menampilkan semua catatan, hanya penghambat, atau hanya non-penghambat.
+          - Daftar hasil pencarian dan saringan diperbarui langsung tanpa memuat ulang halaman.
+      - key: SF4
+        title: Tautkan ke Tugas
+        summary: Hubungkan catatan masalah ke tugas terkait supaya riwayatnya jelas.
+        goal: >-
+          Menghubungkan catatan masalah ke tugas terkait agar riwayat dan
+          konteksnya tetap jelas.
+        done_when:
+          - Saat membuat atau mengubah catatan, pengguna dapat memilih tugas terkait dari proyek aktif.
+          - Catatan yang tertaut menampilkan judul tugas terkait pada daftar catatan.
+          - Dari halaman tugas, pengguna dapat melihat daftar catatan masalah yang tertaut ke tugas tersebut.
+    tasks:
+      - { key: F06-T01, title: Buat halaman daftar catatan masalah, area: frontend, subfeature: SF1 }
+      - { key: F06-T02, title: Buat form tambah dan ubah catatan, area: frontend, subfeature: SF1 }
+      - { key: F06-T03, title: Tambahkan aksi hapus catatan dengan konfirmasi, area: frontend, subfeature: SF1 }
+      - { key: F06-T04, title: Tampilkan toggle dan badge penghambat, area: frontend, subfeature: SF2 }
+      - { key: F06-T05, title: Buat pencarian dan saringan status catatan, area: frontend, subfeature: SF3 }
+      - { key: F06-T06, title: Tampilkan catatan tertaut di halaman tugas, area: frontend, subfeature: SF4 }
+      - { key: F06-T07, title: Buat tabel catatan teknis dan migrasi, area: backend }
+      - { key: F06-T08, title: Buat modul dan service CRUD catatan, area: backend, subfeature: SF1 }
+      - { key: F06-T09, title: Buat endpoint daftar catatan dengan filter, area: backend, subfeature: SF3 }
+      - { key: F06-T10, title: Buat endpoint detail ubah dan hapus catatan, area: backend, subfeature: SF1 }
+      - { key: F06-T11, title: Buat endpoint tautkan catatan ke tugas, area: backend, subfeature: SF4 }
+      - { key: F06-T12, title: Buat endpoint daftar catatan per tugas, area: backend, subfeature: SF4 }
+
+  # =========================================================================
+  # FASE 3 — Rilis & Ekspor
+  # =========================================================================
+  - key: F07
+    title: Dokumen Rilis & Ekspor
+    slug: dokumen-rilis-ekspor
+    phase: 3
+    summary: Kumpulkan semua dokumen rilis dan cetak rangkumannya lengkap tanpa ada yang tertinggal.
+    goal: >-
+      Mengumpulkan seluruh dokumen rilis pada satu tempat dan mencetak rangkuman
+      lengkap proyek agar tidak ada kebutuhan penting yang terlewat saat rilis ke
+      production.
+    done_when:
+      - Pengguna dapat menambah dokumen rilis lewat tautan maupun unggahan file, serta melihat daftar dokumen yang sudah tersimpan.
+      - "Pengguna dapat melihat status kelengkapan rilis: dokumen dan catatan wajib mana yang sudah ada dan mana yang masih kurang."
+      - Pengguna dapat mengunduh satu dokumen rangkuman rilis berisi rencana, tugas, cabang, env, database, masalah teknis, dan dokumen rilis.
+      - Tampilan daftar dan rangkuman memakai label berbahasa Indonesia yang mudah dipahami pengguna awam.
+    subfeatures:
+      - key: SF1
+        title: Tambah Dokumen Rilis
+        summary: Masukkan dokumen seperti SDD atau hasil pentest lewat tautan maupun unggahan file.
+        goal: >-
+          Memungkinkan pengguna memasukkan dokumen rilis seperti SDD atau hasil
+          pentest lewat tautan maupun unggahan file agar tersimpan rapi di proyek.
+        done_when:
+          - Pengguna dapat menambah dokumen rilis dengan mengisi nama dokumen dan salah satu dari tautan atau file yang diunggah.
+          - Setiap dokumen dapat ditandai sebagai wajib atau tidak wajib sebelum rilis.
+          - Daftar dokumen rilis menampilkan nama, sumber (tautan/file), dan status kelengkapannya, serta dapat diubah atau dihapus.
+      - key: SF2
+        title: Checklist Kelengkapan Rilis
+        summary: Periksa apakah semua dokumen dan catatan wajib sudah ada sebelum rilis.
+        goal: >-
+          Memperlihatkan kepada pengguna apakah semua dokumen dan catatan wajib
+          sudah tersedia sebelum aplikasi benar-benar dirilis.
+        done_when:
+          - Halaman rilis menampilkan checklist berisi dokumen wajib, env, dan catatan database beserta tanda sudah siap atau belum siap.
+          - Checklist menunjukkan jumlah item yang sudah lengkap dibanding total item wajib.
+          - Bila ada item yang belum lengkap, pengguna melihat petunjuk jelas bagian mana yang harus dilengkapi.
+      - key: SF3
+        title: Ekspor Rangkuman
+        summary: Unduh satu rangkuman rilis berisi semua printilan proyek dalam satu dokumen.
+        goal: >-
+          Memungkinkan pengguna mengunduh satu dokumen rangkuman rilis yang memuat
+          seluruh kebutuhan proyek agar tidak ada yang tertinggal saat rilis.
+        done_when:
+          - Tombol ekspor menghasilkan satu file rangkuman yang dapat diunduh pengguna.
+          - Rangkuman memuat bagian rencana, tugas beserta cabang, daftar env (nilai rahasia tersamar), catatan database, masalah teknis, dan dokumen rilis.
+          - Rangkuman menampilkan informasi perusahaan, nama proyek, dan sprint yang sedang aktif di bagian atas dokumen.
+    tasks:
+      - { key: F07-T01, title: Buat halaman Dokumen Rilis dengan data tiruan, area: frontend }
+      - { key: F07-T02, title: Buat form tambah ubah dokumen rilis, area: frontend, subfeature: SF1 }
+      - { key: F07-T03, title: Buat aksi hapus dan penanda wajib, area: frontend, subfeature: SF1 }
+      - { key: F07-T04, title: Buat panel checklist kelengkapan rilis, area: frontend, subfeature: SF2 }
+      - { key: F07-T05, title: Buat progres dan petunjuk item kurang, area: frontend, subfeature: SF2 }
+      - { key: F07-T06, title: Buat pratinjau rangkuman rilis dengan mock, area: frontend, subfeature: SF3 }
+      - { key: F07-T07, title: Buat tombol ekspor dan notifikasi unduhan, area: frontend, subfeature: SF3 }
+      - { key: F07-T08, title: Buat tabel dokumen rilis dan migrasi, area: backend }
+      - { key: F07-T09, title: Buat endpoint CRUD dokumen rilis, area: backend, subfeature: SF1 }
+      - { key: F07-T10, title: Buat unggah file dan validasi sumber, area: backend, subfeature: SF1 }
+      - { key: F07-T11, title: Buat endpoint checklist kelengkapan rilis, area: backend, subfeature: SF2 }
+      - { key: F07-T12, title: Buat hitung progres dan status siap, area: backend, subfeature: SF2 }
+      - { key: F07-T13, title: Buat endpoint ekspor rangkuman rilis, area: backend, subfeature: SF3 }
+      - { key: F07-T14, title: Buat penyusun rencana tugas env database, area: backend, subfeature: SF3 }
+      - { key: F07-T15, title: Buat header perusahaan proyek dan sprint, area: backend, subfeature: SF3 }
+      - { key: F07-T16, title: Buat penyamaran env dan unduhan file, area: backend, subfeature: SF3 }
+
+  # =========================================================================
+  # FASE 4 — Akun & Kolaborasi
+  # =========================================================================
+  - key: F08
+    title: Masuk & Pengaturan Akun
+    slug: masuk-pengaturan-akun
+    phase: 4
+    summary: Kelola akses dan pengaturan pribadimu di aplikasi.
+    goal: >-
+      Memungkinkan pengguna memiliki akun pribadi agar data proyek tersimpan atas
+      namanya dan akses ke proyek bisa diatur dengan aman.
+    done_when:
+      - Pengguna baru dapat membuat akun, lalu langsung bisa masuk ke aplikasi.
+      - Pengguna dapat keluar dari aplikasi kapan saja dan sesi masuknya benar-benar berakhir.
+      - Pengguna dapat melihat dan mengubah nama, foto, serta preferensi tampilan miliknya.
+      - Pemilik proyek dapat menambahkan rekan kerja sebagai anggota dengan hak lihat atau ubah.
+      - Pengguna hanya bisa membuka proyek miliknya atau proyek tempat ia terdaftar sebagai anggota.
+    subfeatures:
+      - key: SF1
+        title: Daftar Akun
+        summary: Buat akun baru supaya data proyek tersimpan atas namamu.
+        goal: Memungkinkan pengguna baru membuat akun agar data proyek tersimpan atas namanya sendiri.
+        done_when:
+          - Tersedia formulir daftar berisi nama, email, dan kata sandi dengan tombol "Daftar".
+          - Akun berhasil dibuat dan pengguna diarahkan untuk masuk atau langsung masuk ke aplikasi.
+          - Muncul pesan jelas bila email sudah dipakai atau data wajib belum diisi.
+      - key: SF2
+        title: Login & Logout
+        summary: Masuk dan keluar dari aplikasi dengan aman.
+        goal: >-
+          Memungkinkan pengguna masuk dan keluar aplikasi dengan aman sehingga
+          datanya hanya bisa diakses olehnya.
+        done_when:
+          - Tersedia halaman masuk dengan email dan kata sandi serta tombol "Masuk".
+          - Pengguna yang salah kata sandi mendapat pesan kesalahan yang jelas.
+          - Setelah masuk, nama pengguna tampil di aplikasi dan tombol "Keluar" mengakhiri sesi.
+          - Halaman aplikasi tidak bisa dibuka bila pengguna belum masuk.
+      - key: SF3
+        title: Atur Profil
+        summary: Ubah nama, foto, dan preferensi tampilan sesuai keinginanmu.
+        goal: Memungkinkan pengguna menyesuaikan identitas dan tampilan aplikasi sesuai keinginannya.
+        done_when:
+          - Halaman profil menampilkan nama, foto, dan preferensi tampilan yang bisa diubah.
+          - Perubahan tersimpan dan nama baru langsung terlihat di aplikasi.
+          - Foto profil baru tampil menggantikan foto lama setelah disimpan.
+      - key: SF4
+        title: Kelola Anggota
+        summary: Tambahkan rekan kerja yang boleh melihat atau mengubah proyek.
+        goal: >-
+          Memungkinkan pemilik proyek mengundang rekan kerja agar bisa melihat
+          atau mengubah proyek bersama.
+        done_when:
+          - "Pemilik proyek dapat menambah anggota dengan menentukan hak akses: lihat atau ubah."
+          - Daftar anggota proyek tampil beserta hak aksesnya dan dapat dihapus.
+          - Anggota yang masuk hanya melihat proyek yang diizinkan, dengan tombol ubah tersembunyi bila hanya berhak lihat.
+    tasks:
+      - { key: F08-T01, title: Bangun layout aplikasi dengan sesi tiruan, area: frontend }
+      - { key: F08-T02, title: Buat halaman daftar akun tiruan, area: frontend, subfeature: SF1 }
+      - { key: F08-T03, title: Buat halaman masuk dan keluar tiruan, area: frontend, subfeature: SF2 }
+      - { key: F08-T04, title: Terapkan penjagaan rute berbasis sesi tiruan, area: frontend, subfeature: SF2 }
+      - { key: F08-T05, title: Buat halaman profil pengguna tiruan, area: frontend, subfeature: SF3 }
+      - { key: F08-T06, title: Buat halaman kelola anggota proyek tiruan, area: frontend, subfeature: SF4 }
+      - { key: F08-T07, title: Buat tabel pengguna dan migrasi, area: backend }
+      - { key: F08-T08, title: Buat endpoint registrasi akun dengan hash, area: backend, subfeature: SF1 }
+      - { key: F08-T09, title: Buat autentikasi masuk keluar dan sesi, area: backend, subfeature: SF2 }
+      - { key: F08-T10, title: Buat endpoint lihat dan ubah profil, area: backend, subfeature: SF3 }
+      - { key: F08-T11, title: Buat tabel anggota proyek dan migrasi, area: backend, subfeature: SF4 }
+      - { key: F08-T12, title: Buat endpoint kelola anggota proyek, area: backend, subfeature: SF4 }
+      - { key: F08-T13, title: Terapkan otorisasi akses proyek per anggota, area: backend, subfeature: SF4 }
+      - { key: F08-T14, title: Sediakan unggah foto profil pengguna, area: backend, subfeature: SF3 }

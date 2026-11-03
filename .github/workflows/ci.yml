@@ -1,0 +1,187 @@
+name: CI
+
+# Monorepo belum di-scaffold. Job `web` dan `api` memakai guard `if:` di level
+# job, sehingga tampil SKIPPED (grey) selama apps/ belum ada — bukan hijau
+# palsu, dan bukan merah. Begitu apps/web dan apps/api muncul, keduanya hidup
+# sendiri tanpa perlu mengubah file ini.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect:
+    name: Deteksi workspace
+    runs-on: ubuntu-latest
+    outputs:
+      has_web: ${{ steps.check.outputs.has_web }}
+      has_api: ${{ steps.check.outputs.has_api }}
+      has_workspace: ${{ steps.check.outputs.has_workspace }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Periksa struktur monorepo
+        id: check
+        run: |
+          has() { [ -f "$1" ] && echo true || echo false; }
+
+          has_web=$(has apps/web/package.json)
+          has_api=$(has apps/api/package.json)
+          has_workspace=$(has pnpm-workspace.yaml)
+
+          echo "has_web=$has_web"             >> "$GITHUB_OUTPUT"
+          echo "has_api=$has_api"             >> "$GITHUB_OUTPUT"
+          echo "has_workspace=$has_workspace" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### Deteksi workspace"
+            echo ""
+            echo "| Bagian | Ada |"
+            echo "| --- | --- |"
+            echo "| \`pnpm-workspace.yaml\` | $has_workspace |"
+            echo "| \`apps/web\` (Next.js) | $has_web |"
+            echo "| \`apps/api\` (NestJS) | $has_api |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$has_web" = "false" ] && [ "$has_api" = "false" ]; then
+            {
+              echo ""
+              echo "Monorepo belum di-scaffold, jadi job lint/test/build dilewati."
+              echo "Keduanya akan jalan sendiri begitu \`apps/web\` dan \`apps/api\` ada."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  web:
+    name: Web (Next.js)
+    needs: detect
+    if: needs.detect.outputs.has_web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # `--if-present` supaya script yang belum ada tidak menggagalkan CI,
+      # tapi script yang ada tetap wajib lulus.
+      - name: Lint
+        run: pnpm --filter ./apps/web run lint --if-present
+
+      - name: Typecheck
+        run: pnpm --filter ./apps/web run typecheck --if-present
+
+      - name: Test
+        run: pnpm --filter ./apps/web run test --if-present
+
+      - name: Build
+        run: pnpm --filter ./apps/web run build --if-present
+
+  api:
+    name: API (NestJS)
+    needs: detect
+    if: needs.detect.outputs.has_api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: project_management_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/project_management_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter ./apps/api run lint --if-present
+
+      - name: Typecheck
+        run: pnpm --filter ./apps/api run typecheck --if-present
+
+      - name: Test
+        run: pnpm --filter ./apps/api run test --if-present
+
+      - name: Build
+        run: pnpm --filter ./apps/api run build --if-present
+
+  roadmap-manifest:
+    name: Validasi roadmap.yml
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: .github/scripts/package-lock.json
+
+      - run: npm ci
+        working-directory: .github/scripts
+
+      # Menjaga agar manifest yang rusak tidak pernah ter-merge ke main —
+      # jauh lebih murah ketahuan di sini daripada saat Roadmap Sync berjalan
+      # dan berhenti separuh jalan.
+      - name: Validasi manifest
+        working-directory: .github/scripts
+        run: node sync-roadmap.mjs --validate-only
+
+  ci-ok:
+    name: CI OK
+    needs: [detect, web, api, roadmap-manifest]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # Gerbang tunggal untuk branch protection: hijau bila tidak ada job yang
+      # gagal atau dibatalkan. Job yang di-skip dianggap lulus, supaya required
+      # check tidak menggantung selama monorepo belum ada.
+      - name: Periksa hasil job
+        run: |
+          results='${{ toJSON(needs) }}'
+          echo "$results"
+          if echo "$results" | grep -q '"result": *"failure"'; then
+            echo "::error::Ada job yang gagal."
+            exit 1
+          fi
+          if echo "$results" | grep -q '"result": *"cancelled"'; then
+            echo "::error::Ada job yang dibatalkan."
+            exit 1
+          fi
+          echo "Semua job lulus atau dilewati."

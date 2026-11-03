@@ -1,0 +1,18 @@
+# Normalisasi akhir baris: repositori selalu menyimpan LF.
+# Penting karena blok `run:` di workflow dieksekusi sebagai skrip shell di
+# runner Linux — CRLF di sana menyebabkan error yang sulit dilacak.
+* text=auto eol=lf
+
+# Berkas biner — jangan diutak-atik.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+
+# Lockfile: tandai sebagai generated supaya diff-nya terlipat di GitHub.
+package-lock.json linguist-generated=true
+pnpm-lock.yaml   linguist-generated=true
