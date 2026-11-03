@@ -1,0 +1,60 @@
+# ---------------------------------------------------------------------------
+# Dokumen kerja — sengaja TIDAK di-push (repositori ini publik).
+# PRD lengkap & mockup Stitch dipegang lokal saja.
+# Ringkasan task-nya ada di .github/roadmap.yml.
+# ---------------------------------------------------------------------------
+/PRD/
+/stitch_web_app_figma_mockup/
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+.pnpm-store/
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+
+# Build output
+dist/
+build/
+out/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Environment — jangan pernah commit nilai rahasia
+.env
+.env.*
+!.env.example
+
+# Test & coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Log
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# NestJS / Prisma
+apps/api/dist/
+prisma/*.db
+prisma/*.db-journal
+
+# Upload lokal (file PRD & dokumen rilis yang diunggah pengguna)
+uploads/
+tmp/
