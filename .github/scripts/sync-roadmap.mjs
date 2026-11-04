@@ -621,12 +621,59 @@ async function main() {
   }
 }
 
+/**
+ * Menguraikan error GraphQL jadi pesan yang bisa ditindaklanjuti.
+ *
+ * `GraphqlResponseError.message` hanya berisi "Request failed due to following
+ * response errors:" tanpa rincian bila array `errors`-nya kosong — yang justru
+ * terjadi pada kegagalan izin, karena GitHub menaruh sebabnya di `type` dan di
+ * header respons, bukan di `message`.
+ */
+function describeGraphqlError(err) {
+  const lines = [];
+
+  for (const e of err.errors ?? []) {
+    const type = e.type ? ` [${e.type}]` : '';
+    const path = e.path ? ` (${[].concat(e.path).join('.')})` : '';
+    lines.push(`  - ${e.message}${type}${path}`);
+  }
+
+  const status = err.status ?? err.response?.status;
+  if (status) lines.push(`  - HTTP ${status}`);
+
+  const scopes = err.response?.headers?.['x-oauth-scopes'];
+  const accepted = err.response?.headers?.['x-accepted-oauth-scopes'];
+  if (scopes !== undefined) lines.push(`  - scope token: "${scopes || '(kosong — fine-grained PAT)'}"`);
+  if (accepted) lines.push(`  - scope yang diminta: "${accepted}"`);
+
+  if (lines.length === 0 && err.response?.data) {
+    lines.push(`  - respons mentah: ${JSON.stringify(err.response.data).slice(0, 400)}`);
+  }
+
+  return lines.join('\n');
+}
+
 main().catch((err) => {
   if (err instanceof ManifestError) {
     console.error(`\n${err.message}`);
-  } else {
-    console.error(`\nGagal: ${err.message}`);
-    if (err.stack) console.error(err.stack.split('\n').slice(1, 6).join('\n'));
+    process.exit(1);
   }
+
+  console.error(`\nGagal: ${err.message}`);
+
+  const detail = describeGraphqlError(err);
+  if (detail) console.error(detail);
+
+  // Kegagalan pada operasi Projects hampir selalu soal izin token, jadi
+  // sebutkan langsung perbaikannya daripada membiarkan orang menebak.
+  if (/projectv2|project/i.test(err.message) || err.stack?.includes('syncProjectBoard')) {
+    console.error(
+      '\nBila ini soal izin: PROJECT_TOKEN harus fine-grained PAT dengan\n' +
+        '"Projects: Read and write" di bagian ACCOUNT permissions (bukan Repository\n' +
+        'permissions), dan resource owner-nya harus akun pemilik board.',
+    );
+  }
+
+  if (err.stack) console.error(`\n${err.stack.split('\n').slice(1, 6).join('\n')}`);
   process.exit(1);
 });
