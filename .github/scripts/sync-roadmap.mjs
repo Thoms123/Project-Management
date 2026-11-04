@@ -43,6 +43,9 @@ import {
   ensureSingleSelectField,
   addProjectItem,
   setSingleSelectValue,
+  listProjectItemNumbers,
+  listIssueProjectItems,
+  recreateProjectItem,
   ensureView,
   markerFor,
   sleep,
@@ -455,6 +458,39 @@ async function syncProjectBoard(gql, manifest, epicIssues, taskIssues, stats) {
     }
   }
 
+  // --- Verifikasi hasil ---------------------------------------------------
+  // Jangan percaya pada mutation yang mengembalikan sukses: cocokkan daftar
+  // item yang benar-benar terdaftar dengan yang seharusnya ada.
+  try {
+    const onBoard = await listProjectItemNumbers(gql, project.id);
+    const missing = queue.filter(({ issue }) => !onBoard.has(issue.number));
+
+    for (const { issue } of missing) {
+      console.warn(`  ! #${issue.number} tidak muncul di board meski penambahan sukses — dibuat ulang`);
+      try {
+        const items = await listIssueProjectItems(gql, owner, repo, issue.number, project.id);
+        if (items.length > 0) {
+          await recreateProjectItem(gql, project.id, items[0].id, issue.node_id);
+        } else {
+          await addProjectItem(gql, project.id, issue.node_id);
+        }
+        stats.projectRepaired += 1;
+      } catch (err) {
+        stats.projectErrors.push(`#${issue.number} gagal dipulihkan: ${err.message}`);
+      }
+    }
+
+    if (missing.length > 0) {
+      const after = await listProjectItemNumbers(gql, project.id);
+      const stillMissing = queue.filter(({ issue }) => !after.has(issue.number));
+      for (const { issue } of stillMissing) {
+        stats.projectErrors.push(`#${issue.number} tetap tidak terdaftar di board`);
+      }
+    }
+  } catch (err) {
+    console.warn(`  ! verifikasi board gagal: ${err.message}`);
+  }
+
   // --- View ---------------------------------------------------------------
   // Filter pakai label, bukan field kustom: label dijamin ada dan namanya
   // stabil, sedangkan nama opsi field bisa berubah bila manifest diedit.
@@ -507,6 +543,10 @@ function buildSummary(manifest, stats, opts) {
     lines.push(`> **Project board dilewati** — ${stats.projectSkippedReason}`);
   } else {
     lines.push(`**Project board:** ${stats.projectItems} item disinkronkan, ${stats.projectViews} view disiapkan.`);
+    if (stats.projectRepaired > 0) {
+      lines.push('');
+      lines.push(`> ${stats.projectRepaired} item tidak muncul di board meski penambahannya sukses, lalu dibuat ulang.`);
+    }
     if (stats.projectUrl) lines.push('');
     if (stats.projectUrl) lines.push(`[Buka board →](${stats.projectUrl})`);
   }
@@ -570,7 +610,7 @@ async function main() {
     tasksCreated: 0, tasksSkipped: 0, tasksPlanned: 0,
     linksCreated: 0, linksSkipped: 0, linksPlanned: 0,
     linkErrors: [],
-    projectItems: 0, projectViews: 0, projectErrors: [],
+    projectItems: 0, projectViews: 0, projectRepaired: 0, projectErrors: [],
     projectCreated: false, projectUrl: null, projectSkippedReason: null,
   };
 

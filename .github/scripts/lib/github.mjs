@@ -212,6 +212,8 @@ export async function findProjectByTitle(gql, login, title) {
     }`;
 
   let cursor = null;
+  let sawNullNode = false;
+
   for (;;) {
     const res = await gql(query, { login, cursor }).catch((err) => {
       if (err.data) return err.data;
@@ -221,9 +223,25 @@ export async function findProjectByTitle(gql, login, title) {
     const conn = res.user?.projectsV2 ?? res.organization?.projectsV2;
     if (!conn) return null;
 
-    const hit = conn.nodes.find((n) => n.title === title);
+    // Token yang boleh melihat daftar project tapi tidak boleh membaca
+    // detailnya mendapat entri `null`, bukan error. Tanpa penjagaan ini
+    // kegagalan izin menyamar jadi TypeError yang membingungkan.
+    const nodes = conn.nodes ?? [];
+    if (nodes.some((n) => n === null)) sawNullNode = true;
+
+    const hit = nodes.filter(Boolean).find((n) => n.title === title);
     if (hit) return hit;
-    if (!conn.pageInfo.hasNextPage) return null;
+
+    if (!conn.pageInfo.hasNextPage) {
+      if (sawNullNode) {
+        throw new Error(
+          `Token bisa melihat daftar project milik "${login}" tapi tidak boleh membaca isinya ` +
+            '(GitHub mengembalikan entri kosong). PROJECT_TOKEN kurang izin Projects — ' +
+            'lihat catatan izin di README.',
+        );
+      }
+      return null;
+    }
     cursor = conn.pageInfo.endCursor;
   }
 }
@@ -346,6 +364,80 @@ export async function setSingleSelectValue(gql, projectId, itemId, fieldId, opti
      }`,
     { projectId, itemId, fieldId, optionId },
   );
+}
+
+/**
+ * Mengumpulkan nomor Issue dari seluruh item yang benar-benar terdaftar di
+ * project.
+ *
+ * Dipakai untuk memeriksa hasil akhir, bukan sekadar percaya pada mutation
+ * yang mengembalikan sukses: pernah terjadi `addProjectV2ItemById`
+ * mengembalikan item id yang valid, tapi item itu tidak pernah muncul di
+ * koneksi `items` — sehingga satu task hilang diam-diam dari board.
+ */
+export async function listProjectItemNumbers(gql, projectId) {
+  const numbers = new Set();
+  let cursor = null;
+
+  for (;;) {
+    const res = await gql(
+      `query($projectId:ID!, $cursor:String) {
+         node(id:$projectId) {
+           ... on ProjectV2 {
+             items(first:100, after:$cursor) {
+               nodes { id content { ... on Issue { number } } }
+               pageInfo { hasNextPage endCursor }
+             }
+           }
+         }
+       }`,
+      { projectId, cursor },
+    );
+
+    const items = res.node.items;
+    for (const node of items.nodes ?? []) {
+      if (node?.content?.number) numbers.add(node.content.number);
+    }
+    if (!items.pageInfo.hasNextPage) return numbers;
+    cursor = items.pageInfo.endCursor;
+  }
+}
+
+/** Item project yang memuat satu Issue, disaring ke project tertentu. */
+export async function listIssueProjectItems(gql, owner, repo, issueNumber, projectId) {
+  const res = await gql(
+    `query($owner:String!, $repo:String!, $number:Int!) {
+       repository(owner:$owner, name:$repo) {
+         issue(number:$number) {
+           projectItems(first:20, includeArchived:true) {
+             nodes { id project { id } }
+           }
+         }
+       }
+     }`,
+    { owner, repo, number: issueNumber },
+  );
+
+  const nodes = res.repository?.issue?.projectItems?.nodes ?? [];
+  return nodes.filter((n) => n?.project?.id === projectId);
+}
+
+/**
+ * Menghapus lalu menambahkan ulang satu item.
+ *
+ * Satu-satunya pemulihan yang berhasil untuk item yang "ada" (bisa diambil
+ * lewat node id, dan Issue-nya mengaku anggota project) tapi tidak pernah
+ * muncul di koneksi `items`.
+ */
+export async function recreateProjectItem(gql, projectId, itemId, contentId) {
+  await gql(
+    `mutation($projectId:ID!, $itemId:ID!) {
+       deleteProjectV2Item(input:{projectId:$projectId, itemId:$itemId}) { deletedItemId }
+     }`,
+    { projectId, itemId },
+  );
+  await sleep(2000);
+  return addProjectItem(gql, projectId, contentId);
 }
 
 export async function listProjectViews(gql, projectId) {
