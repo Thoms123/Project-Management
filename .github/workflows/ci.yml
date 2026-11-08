@@ -77,19 +77,21 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # `--if-present` HARUS mendahului nama script. Bila ditaruh setelahnya,
-      # pnpm meneruskannya sebagai argumen ke script dan perintahnya gagal.
+      # Dijalankan lewat turbo, bukan `pnpm run` langsung, supaya
+      # dependsOn: ["^build"] di turbo.json dihormati — @rtl/shared harus
+      # dibangun lebih dulu atau tipenya tidak bisa di-resolve. turbo juga
+      # melewati task yang tidak ada di paket, menggantikan --if-present.
       - name: Lint
-        run: pnpm --filter ./apps/web run --if-present lint
+        run: pnpm turbo run lint --filter=@rtl/web
 
       - name: Typecheck
-        run: pnpm --filter ./apps/web run --if-present typecheck
+        run: pnpm turbo run typecheck --filter=@rtl/web
 
       - name: Test
-        run: pnpm --filter ./apps/web run --if-present test
+        run: pnpm turbo run test --filter=@rtl/web
 
       - name: Build
-        run: pnpm --filter ./apps/web run --if-present build
+        run: pnpm turbo run build --filter=@rtl/web
 
   api:
     name: API (NestJS)
@@ -135,16 +137,16 @@ jobs:
         run: pnpm --filter ./apps/api exec prisma migrate deploy
 
       - name: Lint
-        run: pnpm --filter ./apps/api run --if-present lint
+        run: pnpm turbo run lint --filter=@rtl/api
 
       - name: Typecheck
-        run: pnpm --filter ./apps/api run --if-present typecheck
+        run: pnpm turbo run typecheck --filter=@rtl/api
 
       - name: Test
-        run: pnpm --filter ./apps/api run --if-present test
+        run: pnpm turbo run test --filter=@rtl/api
 
       - name: Build
-        run: pnpm --filter ./apps/api run --if-present build
+        run: pnpm turbo run build --filter=@rtl/api
 
   roadmap-manifest:
     name: Validasi roadmap.yml
