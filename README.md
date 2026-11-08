@@ -22,25 +22,29 @@ Hasil akhirnya: saat hendak merilis ke production, semua yang dibutuhkan sudah t
 
 | Bagian | Teknologi |
 | --- | --- |
-| Frontend | Next.js + Tailwind CSS + shadcn/ui |
-| Backend | NestJS |
-| Database | PostgreSQL |
-| Autentikasi | JWT / NestJS Auth |
-| Penyimpanan file | Object storage (unggahan PRD & dokumen rilis) |
+| Frontend | Next.js 16 + React 19 + Tailwind CSS 4 |
+| Backend | NestJS 12 |
+| Database | PostgreSQL 16 + Prisma 7 |
+| Autentikasi | JWT / NestJS Auth *(belum dikerjakan — Fase 4)* |
+| Penyimpanan file | Object storage *(belum dikerjakan — Fase 1/3)* |
 | Deployment | Vercel (frontend), backend terpisah |
 | Monorepo | pnpm workspaces + Turborepo |
-
-Struktur yang direncanakan:
+| Test | Vitest |
 
 ```
 apps/
   web/      → Next.js (frontend)
-  api/      → NestJS (backend)
+  api/      → NestJS + Prisma (backend)
 packages/
   shared/   → tipe data & utilitas bersama
 ```
 
-> Monorepo belum di-scaffold. Workflow CI sudah siap dan akan aktif sendiri begitu `apps/web` dan `apps/api` ada.
+Dua catatan versi yang gampang menjebak:
+
+- **NestJS 12 ESM-only.** `apps/api` memakai `"type": "module"` dan `moduleResolution: nodenext`, jadi **impor relatif wajib berakhiran `.js`** (mis. `./health.service.js`) meski berkas aslinya `.ts`. Test memakai Vitest + SWC, bukan Jest, karena transformer bawaan Vitest tidak memancarkan metadata dekorator yang dibutuhkan dependency injection NestJS.
+- **Prisma 7 tidak lagi menerima `url` di `schema.prisma`.** URL untuk perintah CLI ada di `apps/api/prisma.config.ts`; saat runtime koneksi dibuat lewat driver adapter `@prisma/adapter-pg` di `prisma.service.ts`.
+
+TypeScript dikunci di **6.0.3** — TypeScript 7 belum didukung `typescript-eslint` (`<6.1.0`).
 
 ## Roadmap
 
@@ -103,12 +107,45 @@ gh secret set PROJECT_TOKEN
 
 Jalan pada setiap push dan PR ke `main`:
 
-- **`detect`** — memeriksa apakah `apps/web` dan `apps/api` sudah ada
-- **`web`** / **`api`** — lint → typecheck → test → build (job `api` dapat service PostgreSQL 16). Keduanya **di-skip** selama `apps/` belum ada
+- **`detect`** — memeriksa struktur monorepo
+- **`web`** / **`api`** — lint → typecheck → test → build. Job `api` mendapat service PostgreSQL 16 dan menjalankan `prisma migrate deploy`, sehingga migrasi yang di-commit ikut diuji pada database kosong
 - **`roadmap-manifest`** — memvalidasi `roadmap.yml` agar manifest rusak tidak pernah ter-merge
 - **`ci-ok`** — gerbang tunggal untuk branch protection; pasang job ini sebagai required status check
 
 ## Pengembangan lokal
+
+Butuh **Node 20+**, **pnpm 10**, dan **Docker**.
+
+```bash
+pnpm install          # prisma generate jalan otomatis lewat postinstall
+cp .env.example .env
+
+pnpm db:up            # PostgreSQL 16 di localhost:5433
+pnpm db:migrate       # terapkan migrasi
+
+pnpm dev              # web → :3000, api → :3001/api
+```
+
+Cek API hidup:
+
+```bash
+curl http://localhost:3001/api/health
+# {"status":"ok","database":"ok","uptimeSeconds":2}
+```
+
+> Port host-nya **5433**, bukan 5432, supaya tidak bentrok dengan PostgreSQL lain yang mungkin sudah jalan di mesinmu. Di dalam container tetap 5432.
+
+### Perintah
+
+| Perintah | Kegunaan |
+| --- | --- |
+| `pnpm dev` | Jalankan web + api bersamaan |
+| `pnpm lint` / `typecheck` / `test` / `build` | Sama persis dengan yang dijalankan CI |
+| `pnpm db:up` / `db:down` | Nyalakan / matikan PostgreSQL |
+| `pnpm db:migrate` | Buat & terapkan migrasi |
+| `pnpm db:studio` | Prisma Studio |
+
+### Tooling roadmap
 
 ```bash
 cd .github/scripts

@@ -1,0 +1,26 @@
+# PostgreSQL untuk development lokal.
+# Versi 16 disamakan dengan service postgres di .github/workflows/ci.yml,
+# supaya perilaku lokal dan CI tidak berbeda.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rtl-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rilis_tanpa_lupa
+    ports:
+      # Host 5433, bukan 5432: port itu sudah dipakai container
+      # proyek lain di mesin ini. Di dalam jaringan Docker tetap 5432.
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d rilis_tanpa_lupa"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:

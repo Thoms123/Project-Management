@@ -1,0 +1,213 @@
+// Skema database — diturunkan langsung dari bagian "Database Schema" pada PRD.
+//
+// Nama tabel dipetakan ke snake_case lewat @@map agar sama persis dengan PRD,
+// sementara nama model mengikuti konvensi Prisma.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Prisma 7 tidak lagi menerima `url` di sini. URL untuk perintah migrate
+  // ada di prisma.config.ts, sedangkan runtime memakai driver adapter
+  // (lihat src/prisma/prisma.service.ts).
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String   @db.VarChar(255)
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  avatarUrl    String?  @map("avatar_url") @db.VarChar(1024)
+  themePref    String?  @map("theme_pref") @db.VarChar(50)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  companies       Company[]
+  projects        Project[]
+  projectMembers  ProjectMember[]
+
+  @@map("users")
+}
+
+model Company {
+  id        String @id @default(uuid()) @db.Uuid
+  name      String @db.VarChar(255)
+  createdBy String @map("created_by") @db.Uuid
+
+  creator  User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  projects Project[]
+
+  @@index([createdBy])
+  @@map("companies")
+}
+
+model Project {
+  id          String   @id @default(uuid()) @db.Uuid
+  companyId   String   @map("company_id") @db.Uuid
+  name        String   @db.VarChar(255)
+  description String?
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Lini masa tingkat proyek (Fase 2 — Lini Masa Proyek).
+  startDate DateTime? @map("start_date") @db.Date
+  endDate   DateTime? @map("end_date") @db.Date
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  creator User    @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  sprints          Sprint[]
+  plans            ProjectPlan[]
+  tasks            Task[]
+  envVariables     EnvVariable[]
+  databaseNotes    DatabaseNote[]
+  techNotes        TechNote[]
+  releaseDocuments ReleaseDocument[]
+  members          ProjectMember[]
+
+  @@index([companyId])
+  @@index([createdBy])
+  @@map("projects")
+}
+
+model Sprint {
+  id            String    @id @default(uuid()) @db.Uuid
+  projectId     String    @map("project_id") @db.Uuid
+  sprintNumber  Int       @map("sprint_number")
+  startDate     DateTime? @map("start_date") @db.Date
+  endDate       DateTime? @map("end_date") @db.Date
+  releaseTarget DateTime? @map("release_target") @db.Date
+  status        String    @default("aktif") @db.VarChar(20)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   Task[]
+
+  // Nomor sprint unik dalam satu proyek — "sprint ke berapa" pada mind map.
+  @@unique([projectId, sprintNumber])
+  @@index([projectId])
+  @@map("sprints")
+}
+
+model ProjectPlan {
+  id         String   @id @default(uuid()) @db.Uuid
+  projectId  String   @map("project_id") @db.Uuid
+  prdLink    String?  @map("prd_link") @db.VarChar(1024)
+  prdFileUrl String?  @map("prd_file_url") @db.VarChar(1024)
+  designLink String?  @map("design_link") @db.VarChar(1024)
+  notes      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   Task[]
+
+  @@index([projectId])
+  @@map("project_plans")
+}
+
+model Task {
+  id            String   @id @default(uuid()) @db.Uuid
+  projectId     String   @map("project_id") @db.Uuid
+  sprintId      String?  @map("sprint_id") @db.Uuid
+  planId        String?  @map("plan_id") @db.Uuid
+  title         String   @db.VarChar(255)
+  description   String?
+  status        String   @default("belum_mulai") @db.VarChar(20)
+  priority      String   @default("sedang") @db.VarChar(20)
+  featureBranch String?  @map("feature_branch") @db.VarChar(255)
+  taskBranch    String?  @map("task_branch") @db.VarChar(255)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  project Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sprint  Sprint?      @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+  plan    ProjectPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+
+  techNotes TechNote[]
+
+  @@index([projectId])
+  @@index([sprintId])
+  @@index([planId])
+  @@map("tasks")
+}
+
+model EnvVariable {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String   @map("project_id") @db.Uuid
+  key       String   @db.VarChar(255)
+  // Disimpan terenkripsi; penyamaran untuk tampilan dilakukan di service.
+  // Lihat SECRETS_ENCRYPTION_KEY di .env.example.
+  value     String   @map("value_encrypted")
+  isReady   Boolean  @default(false) @map("is_ready")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, key])
+  @@index([projectId])
+  @@map("env_variables")
+}
+
+model DatabaseNote {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String   @map("project_id") @db.Uuid
+  dbName    String   @map("db_name") @db.VarChar(255)
+  queryText String   @map("query_text")
+  isMasked  Boolean  @default(true) @map("is_masked")
+  isReady   Boolean  @default(false) @map("is_ready")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("database_notes")
+}
+
+model TechNote {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String   @map("project_id") @db.Uuid
+  taskId    String?  @map("task_id") @db.Uuid
+  title     String   @db.VarChar(255)
+  cause     String?
+  solution  String?
+  isBlocker Boolean  @default(false) @map("is_blocker")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  task    Task?   @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([taskId])
+  @@map("tech_notes")
+}
+
+model ReleaseDocument {
+  id         String   @id @default(uuid()) @db.Uuid
+  projectId  String   @map("project_id") @db.Uuid
+  name       String   @db.VarChar(255)
+  link       String?  @db.VarChar(1024)
+  fileUrl    String?  @map("file_url") @db.VarChar(1024)
+  isRequired Boolean  @default(false) @map("is_required")
+  isComplete Boolean  @default(false) @map("is_complete")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("release_documents")
+}
+
+model ProjectMember {
+  id        String @id @default(uuid()) @db.Uuid
+  projectId String @map("project_id") @db.Uuid
+  userId    String @map("user_id") @db.Uuid
+  role      String @default("viewer") @db.VarChar(20)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Satu pengguna hanya punya satu peran per proyek.
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+  @@map("project_members")
+}

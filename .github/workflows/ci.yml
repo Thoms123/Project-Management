@@ -1,9 +1,9 @@
 name: CI
 
-# Monorepo belum di-scaffold. Job `web` dan `api` memakai guard `if:` di level
-# job, sehingga tampil SKIPPED (grey) selama apps/ belum ada — bukan hijau
-# palsu, dan bukan merah. Begitu apps/web dan apps/api muncul, keduanya hidup
-# sendiri tanpa perlu mengubah file ini.
+# Job `web` dan `api` memakai guard `if:` di level job yang membaca hasil
+# deteksi workspace, sehingga keduanya tampil SKIPPED (grey) — bukan merah —
+# bila struktur monorepo belum ada. Guard dipertahankan supaya repo tetap
+# hijau pada branch yang belum memuat apps/.
 on:
   push:
     branches: [main]
@@ -127,6 +127,12 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+
+      # Menerapkan migrasi ke service PostgreSQL di atas. Ini memverifikasi
+      # migrasi yang di-commit benar-benar bisa dijalankan pada database
+      # kosong — hal yang tidak terlihat dari lint maupun unit test.
+      - name: Terapkan migrasi database
+        run: pnpm --filter ./apps/api exec prisma migrate deploy
 
       - name: Lint
         run: pnpm --filter ./apps/api run lint --if-present

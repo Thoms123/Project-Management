@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/*
+ * RelEase Surface System — token diambil dari DESIGN.md pada mockup Stitch.
+ * Tailwind 4 memakai pendekatan CSS-first: setiap entri di @theme otomatis
+ * menghasilkan utility (mis. --color-brand → bg-brand, text-brand).
+ */
+@theme {
+  /* Kanvas & permukaan */
+  --color-canvas: #f4f6fb;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f8fafc;
+  --color-border-subtle: #edf1f7;
+
+  /* Aksen utama */
+  --color-brand: #3559e0;
+  --color-brand-hover: #2546c4;
+  --color-brand-soft: #eef2ff;
+
+  /* Teks */
+  --color-text-display: #0f172a;
+  --color-text-muted: #64748b;
+
+  /* Status — Plan / Dev / Release / Blocker */
+  --color-status-plan: #1d4ed8;
+  --color-status-plan-bg: #eff6ff;
+  --color-status-dev: #b45309;
+  --color-status-dev-bg: #fef3c7;
+  --color-status-ready: #15803d;
+  --color-status-ready-bg: #dcfce7;
+  --color-status-blocker: #b91c1c;
+  --color-status-blocker-bg: #fee2e2;
+
+  /* Tipografi */
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Radius — kartu besar 24px, baris bersarang 12px */
+  --radius-card: 1.5rem;
+  --radius-nested: 0.75rem;
+
+  /* Elevasi: pemisahan dicapai lewat bayangan ambient, bukan garis tebal */
+  --shadow-surface: 0 10px 30px -4px rgb(15 23 42 / 0.04), 0 4px 12px -2px rgb(15 23 42 / 0.02);
+  --shadow-surface-active: 0 16px 36px -4px rgb(53 89 224 / 0.08), 0 6px 16px -2px rgb(15 23 42 / 0.04);
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-text-display);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}

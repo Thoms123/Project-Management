@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    // NestJS 12 ESM-only, jadi paket ini "type": "module" dan memakai
+    // resolusi nodenext. Impor relatif wajib berakhiran .js.
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "declaration": true,
+    "removeComments": true,
+    // NestJS membutuhkan keduanya: dependency injection-nya membaca metadata
+    // tipe yang dipancarkan dekorator saat runtime.
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "incremental": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

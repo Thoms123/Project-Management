@@ -1,0 +1,35 @@
+{
+  "name": "rilis-tanpa-lupa",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aplikasi manajemen proyek yang mengumpulkan seluruh kebutuhan rilis dalam satu tempat.",
+  "packageManager": "pnpm@10.33.3",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @rtl/api exec prisma migrate dev",
+    "db:studio": "pnpm --filter @rtl/api exec prisma studio",
+    "db:generate": "pnpm --filter @rtl/api exec prisma generate"
+  },
+  "devDependencies": {
+    "turbo": "2.11.10",
+    "typescript": "6.0.3"
+  },
+  "pnpm": {
+    "// onlyBuiltDependencies": "pnpm 10 memblokir postinstall secara default. Prisma butuh postinstall-nya untuk mengunduh query engine; tanpa ini `prisma generate` gagal di CI.",
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "@swc/core",
+      "prisma"
+    ]
+  }
+}
