@@ -77,19 +77,19 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # `--if-present` supaya script yang belum ada tidak menggagalkan CI,
-      # tapi script yang ada tetap wajib lulus.
+      # `--if-present` HARUS mendahului nama script. Bila ditaruh setelahnya,
+      # pnpm meneruskannya sebagai argumen ke script dan perintahnya gagal.
       - name: Lint
-        run: pnpm --filter ./apps/web run lint --if-present
+        run: pnpm --filter ./apps/web run --if-present lint
 
       - name: Typecheck
-        run: pnpm --filter ./apps/web run typecheck --if-present
+        run: pnpm --filter ./apps/web run --if-present typecheck
 
       - name: Test
-        run: pnpm --filter ./apps/web run test --if-present
+        run: pnpm --filter ./apps/web run --if-present test
 
       - name: Build
-        run: pnpm --filter ./apps/web run build --if-present
+        run: pnpm --filter ./apps/web run --if-present build
 
   api:
     name: API (NestJS)
@@ -135,16 +135,16 @@ jobs:
         run: pnpm --filter ./apps/api exec prisma migrate deploy
 
       - name: Lint
-        run: pnpm --filter ./apps/api run lint --if-present
+        run: pnpm --filter ./apps/api run --if-present lint
 
       - name: Typecheck
-        run: pnpm --filter ./apps/api run typecheck --if-present
+        run: pnpm --filter ./apps/api run --if-present typecheck
 
       - name: Test
-        run: pnpm --filter ./apps/api run test --if-present
+        run: pnpm --filter ./apps/api run --if-present test
 
       - name: Build
-        run: pnpm --filter ./apps/api run build --if-present
+        run: pnpm --filter ./apps/api run --if-present build
 
   roadmap-manifest:
     name: Validasi roadmap.yml
