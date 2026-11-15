@@ -3,7 +3,7 @@ import { DevPanel } from '@/components/ruang-proyek/dev-panel';
 import { PlanPanel } from '@/components/ruang-proyek/plan-panel';
 import { ReadinessIndicator } from '@/components/ruang-proyek/readiness-indicator';
 import { StageSummaryCards } from '@/components/ruang-proyek/stage-summary-cards';
-import { StageTabs } from '@/components/ruang-proyek/stage-tabs';
+import { RuangProyekWorkspace } from '@/components/ruang-proyek/workspace';
 import { PendingSection } from '@/components/ui/pending-section';
 
 export const metadata = {
@@ -26,7 +26,7 @@ export default function RuangProyekPage() {
 
       <ReadinessIndicator />
 
-      <StageTabs
+      <RuangProyekWorkspace
         panels={{
           plan: <PlanPanel />,
           dev: <DevPanel />,
@@ -39,13 +39,6 @@ export default function RuangProyekPage() {
             />
           ),
         }}
-      />
-
-      <PendingSection
-        title="Daftar Kekurangan Rilis"
-        description="Butir yang belum lengkap, masing-masing bisa diklik menuju bagian yang harus dilengkapi."
-        taskKey="F01-T06"
-        issue={9}
       />
     </div>
   );

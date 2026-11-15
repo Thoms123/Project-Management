@@ -1,34 +1,74 @@
 'use client';
 
-import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import {
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  type KeyboardEvent,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 import { PROJECT_STAGES, PROJECT_STAGE_LABELS, type ProjectStage } from '@rtl/shared';
 import { cn } from '@/lib/utils';
+
+/** Cara memerintah tab dari luar, mis. dari daftar kekurangan rilis. */
+export interface StageTabsHandle {
+  /** Membuka satu tahap lalu memindahkan fokus ke isinya. */
+  openStage: (stage: ProjectStage) => void;
+}
 
 interface StageTabsProps {
   /** Isi tiap tahap. Tahap tanpa isi menampilkan panel kosong. */
   panels: Partial<Record<ProjectStage, ReactNode>>;
-  defaultStage?: ProjectStage;
+  activeStage: ProjectStage;
+  onStageChange: (stage: ProjectStage) => void;
+  handleRef?: RefObject<StageTabsHandle | null>;
 }
 
 /**
  * Tab Plan – Dev – Release.
  *
- * Pilihan tab disimpan di state komponen, bukan diturunkan dari proyek atau
- * sprint yang sedang dipilih. Itu yang membuatnya tetap bertahan saat pengguna
- * berganti proyek atau sprint nanti ([F01-T07]–[F01-T09]) — selama komponen ini
- * tidak di-remount, mis. jangan beri `key` yang berisi id proyek.
+ * Tahap aktif dikendalikan dari luar supaya bagian lain halaman — daftar
+ * kekurangan rilis — bisa membuka tahap tertentu. Pemiliknya tetap harus
+ * menyimpannya terpisah dari proyek/sprint yang dipilih, agar pilihan tab
+ * bertahan saat pengguna berganti proyek nanti ([F01-T07]–[F01-T09]).
  *
  * Berpindah tab hanya menukar panel; tidak ada navigasi, jadi halaman tidak
  * dimuat ulang.
  */
-export function StageTabs({ panels, defaultStage = 'plan' }: StageTabsProps) {
-  const [active, setActive] = useState<ProjectStage>(defaultStage);
+export function StageTabs({ panels, activeStage, onStageChange, handleRef }: StageTabsProps) {
+  const active = activeStage;
   const tabRefs = useRef<Partial<Record<ProjectStage, HTMLButtonElement | null>>>({});
+  const panelRefs = useRef<Partial<Record<ProjectStage, HTMLDivElement | null>>>({});
 
   function focusStage(stage: ProjectStage) {
-    setActive(stage);
+    onStageChange(stage);
     tabRefs.current[stage]?.focus();
   }
+
+  const menungguFokus = useRef<ProjectStage | null>(null);
+
+  // Fokus tidak bisa dipindah di openStage: saat itu panel tujuan masih
+  // `hidden` karena React belum render ulang, dan memanggil focus() pada
+  // elemen tersembunyi tidak melakukan apa-apa. Jadi niatnya dicatat dulu,
+  // lalu dijalankan setelah tahap aktif benar-benar berubah.
+  useEffect(() => {
+    const tujuan = menungguFokus.current;
+    if (tujuan && tujuan === active) {
+      panelRefs.current[tujuan]?.focus();
+      menungguFokus.current = null;
+    }
+  }, [active]);
+
+  useImperativeHandle(handleRef, () => ({
+    // Fokus dipindah ke isi panel, bukan ke tabnya: pemanggil datang dari
+    // bagian lain halaman, jadi tanpa ini tidak ada tanda apa pun bahwa
+    // sesuatu berpindah — terutama bagi pembaca layar.
+    openStage(stage) {
+      menungguFokus.current = stage;
+      onStageChange(stage);
+    },
+  }));
 
   // Pola tablist WAI-ARIA: panah berpindah antar tab dan langsung
   // mengaktifkannya, Home/End melompat ke ujung.
@@ -71,7 +111,7 @@ export function StageTabs({ panels, defaultStage = 'plan' }: StageTabsProps) {
               // Hanya tab aktif yang masuk urutan Tab; sisanya dijangkau
               // dengan panah, sesuai pola tablist.
               tabIndex={isActive ? 0 : -1}
-              onClick={() => setActive(stage)}
+              onClick={() => onStageChange(stage)}
               onKeyDown={handleKeyDown}
               className={cn(
                 'rounded-full px-5 py-2 text-sm font-semibold transition-colors',
@@ -89,6 +129,9 @@ export function StageTabs({ panels, defaultStage = 'plan' }: StageTabsProps) {
       {PROJECT_STAGES.map((stage) => (
         <div
           key={stage}
+          ref={(el) => {
+            panelRefs.current[stage] = el;
+          }}
           role="tabpanel"
           id={`panel-${stage}`}
           aria-labelledby={`tab-${stage}`}
