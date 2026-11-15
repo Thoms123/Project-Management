@@ -1,4 +1,6 @@
 import { ContextHeader } from '@/components/ruang-proyek/context-header';
+import { DevPanel } from '@/components/ruang-proyek/dev-panel';
+import { PlanPanel } from '@/components/ruang-proyek/plan-panel';
 import { ReadinessIndicator } from '@/components/ruang-proyek/readiness-indicator';
 import { StageSummaryCards } from '@/components/ruang-proyek/stage-summary-cards';
 import { StageTabs } from '@/components/ruang-proyek/stage-tabs';
@@ -26,22 +28,8 @@ export default function RuangProyekPage() {
 
       <StageTabs
         panels={{
-          plan: (
-            <PendingSection
-              title="Isi tahap Plan"
-              description="Dokumen PRD, tautan desain, mind map sprint, dan catatan rencana."
-              taskKey="F01-T05"
-              issue={8}
-            />
-          ),
-          dev: (
-            <PendingSection
-              title="Isi tahap Dev"
-              description="Ringkasan papan tugas beserta cabang fitur dan tugasnya."
-              taskKey="F01-T05"
-              issue={8}
-            />
-          ),
+          plan: <PlanPanel />,
+          dev: <DevPanel />,
           release: (
             <PendingSection
               title="Isi tahap Release"
