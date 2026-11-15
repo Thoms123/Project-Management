@@ -1,4 +1,5 @@
 import { ContextHeader } from '@/components/ruang-proyek/context-header';
+import { StageSummaryCards } from '@/components/ruang-proyek/stage-summary-cards';
 import { PendingSection } from '@/components/ui/pending-section';
 
 export const metadata = {
@@ -8,21 +9,16 @@ export const metadata = {
 /**
  * Ruang Proyek — layar utama aplikasi.
  *
- * Task ini [F01-T01] membangun kerangkanya: kepala konteks dan susunan bagian.
- * Setiap bagian lain diisi task tersendiri, ditandai eksplisit di bawah agar
- * terlihat mana yang sudah jadi dan mana yang belum.
+ * Bagian yang belum dikerjakan ditandai PendingSection beserta task
+ * penggantinya, supaya terlihat mana yang sudah jadi dan mana yang belum.
+ * Setiap penanda dihapus saat task-nya selesai.
  */
 export default function RuangProyekPage() {
   return (
     <div className="flex flex-col gap-6">
       <ContextHeader />
 
-      <PendingSection
-        title="Ringkasan Proyek"
-        description="Kartu status Plan, Dev, dan Release dalam satu pandangan — jumlah dokumen rencana terisi, tugas per status, dan dokumen rilis lengkap."
-        taskKey="F01-T02"
-        issue={5}
-      />
+      <StageSummaryCards />
 
       <PendingSection
         title="Indikator Kesiapan Rilis"
