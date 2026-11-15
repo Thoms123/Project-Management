@@ -1,52 +1,49 @@
-import { PROJECT_STAGE_LABELS, PROJECT_STAGES } from '@rtl/shared';
+import { ContextHeader } from '@/components/ruang-proyek/context-header';
+import { PendingSection } from '@/components/ui/pending-section';
+
+export const metadata = {
+  title: 'Ruang Proyek — Rilis Tanpa Lupa',
+};
 
 /**
- * Halaman sementara penanda scaffold.
+ * Ruang Proyek — layar utama aplikasi.
  *
- * Ruang Proyek yang sebenarnya dikerjakan di [F01-T01]; halaman ini hanya
- * membuktikan rantai Next.js → Tailwind → @rtl/shared sudah tersambung.
+ * Task ini [F01-T01] membangun kerangkanya: kepala konteks dan susunan bagian.
+ * Setiap bagian lain diisi task tersendiri, ditandai eksplisit di bawah agar
+ * terlihat mana yang sudah jadi dan mana yang belum.
  */
-export default function Home() {
+export default function RuangProyekPage() {
   return (
-    <main className="mx-auto max-w-3xl px-4 py-16 sm:px-8">
-      <p className="text-sm font-semibold tracking-wide text-brand uppercase">Scaffold siap</p>
+    <div className="flex flex-col gap-6">
+      <ContextHeader />
 
-      <h1 className="mt-3 text-3xl font-bold tracking-tight text-text-display sm:text-4xl">
-        Rilis Tanpa Lupa
-      </h1>
+      <PendingSection
+        title="Ringkasan Proyek"
+        description="Kartu status Plan, Dev, dan Release dalam satu pandangan — jumlah dokumen rencana terisi, tugas per status, dan dokumen rilis lengkap."
+        taskKey="F01-T02"
+        issue={5}
+      />
 
-      <p className="mt-4 text-text-muted">
-        Kumpulkan seluruh kebutuhan proyek — rencana, tugas, env, database, dan dokumen rilis —
-        dalam satu tempat.
-      </p>
+      <PendingSection
+        title="Indikator Kesiapan Rilis"
+        description="Penanda ringkas siap atau belum, beserta jumlah butir yang masih kurang."
+        taskKey="F01-T03"
+        issue={6}
+      />
 
-      <div className="mt-10 rounded-card bg-surface p-6 shadow-surface">
-        <h2 className="text-base font-semibold">Tahap proyek</h2>
-        <p className="mt-1 text-sm text-text-muted">
-          Dibaca dari <code className="font-mono text-xs">@rtl/shared</code>.
-        </p>
+      <PendingSection
+        title="Tab Plan – Dev – Release"
+        description="Berpindah antar tahap proyek dalam satu halaman tanpa memuat ulang."
+        taskKey="F01-T04"
+        issue={7}
+      />
 
-        <div className="mt-5 flex flex-wrap gap-2">
-          {PROJECT_STAGES.map((stage) => (
-            <span
-              key={stage}
-              className="rounded-full bg-brand-soft px-4 py-1.5 text-sm font-semibold text-brand"
-            >
-              {PROJECT_STAGE_LABELS[stage]}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <p className="mt-8 text-sm text-text-muted">
-        Task berikutnya:{' '}
-        <a
-          className="font-medium text-brand underline underline-offset-4 hover:text-brand-hover"
-          href="https://github.com/Thoms123/Project-Management/issues/4"
-        >
-          #4 — Bangun halaman utama Ruang Proyek
-        </a>
-      </p>
-    </main>
+      <PendingSection
+        title="Daftar Kekurangan Rilis"
+        description="Butir yang belum lengkap, masing-masing bisa diklik menuju bagian yang harus dilengkapi."
+        taskKey="F01-T06"
+        issue={9}
+      />
+    </div>
   );
 }

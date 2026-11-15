@@ -31,9 +31,11 @@
   --color-status-blocker: #b91c1c;
   --color-status-blocker-bg: #fee2e2;
 
-  /* Tipografi */
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* Tipografi — merujuk variabel yang dipancarkan next/font di layout.tsx.
+     Menulis nama font langsung di sini akan melewatkan font yang dioptimasi
+     Next dan jatuh ke pencarian font sistem yang biasanya tidak ada. */
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 
   /* Radius — kartu besar 24px, baris bersarang 12px */
   --radius-card: 1.5rem;
