@@ -4,11 +4,20 @@ name: CI
 # deteksi workspace, sehingga keduanya tampil SKIPPED (grey) — bukan merah —
 # bila struktur monorepo belum ada. Guard dipertahankan supaya repo tetap
 # hijau pada branch yang belum memuat apps/.
+
+# Alur branch: task/** -> feature/** -> main.
+# PR dari branch tiket menargetkan branch fitur, BUKAN main, jadi feature/**
+# wajib ikut terdaftar di sini — tanpa itu PR tiket tidak menjalankan CI
+# sama sekali dan proteksi "wajib hijau" jadi tak berarti.
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "feature/**"
   pull_request:
-    branches: [main]
+    branches:
+      - main
+      - "feature/**"
 
 permissions:
   contents: read

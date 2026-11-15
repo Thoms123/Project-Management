@@ -105,12 +105,28 @@ gh secret set PROJECT_TOKEN
 
 ### CI
 
-Jalan pada setiap push dan PR ke `main`:
+Jalan pada setiap push dan PR ke `main` maupun `feature/**`:
 
 - **`detect`** — memeriksa struktur monorepo
 - **`web`** / **`api`** — lint → typecheck → test → build. Job `api` mendapat service PostgreSQL 16 dan menjalankan `prisma migrate deploy`, sehingga migrasi yang di-commit ikut diuji pada database kosong
 - **`roadmap-manifest`** — memvalidasi `roadmap.yml` agar manifest rusak tidak pernah ter-merge
-- **`ci-ok`** — gerbang tunggal untuk branch protection; pasang job ini sebagai required status check
+- **`ci-ok`** — gerbang tunggal; inilah status check yang diwajibkan ruleset
+
+## Alur kerja
+
+Pengerjaan **tidak pernah langsung ke `main`**. Alurnya:
+
+```
+main  <--PR--  feature/F01-ruang-proyek  <--PR--  task/F01-T01-bangun-halaman-utama-...
+```
+
+`main` dan `feature/**` terkunci: wajib lewat PR dan wajib hijau di job `CI OK`.
+
+```bash
+pnpm branch F01-T01        # buat branch task dengan nama yang benar
+```
+
+Selengkapnya di [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Pengembangan lokal
 
