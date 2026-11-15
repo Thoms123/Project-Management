@@ -187,11 +187,21 @@ export interface ReadinessItem {
   hint: string | null;
 }
 
+/**
+ * Ringkasan kesiapan rilis untuk indikator di Ruang Proyek.
+ *
+ * Hanya angka. Daftar butirnya datang dari endpoint tersendiri (lihat
+ * ReadinessItem), sejalan dengan pemisahan endpoint overview dan endpoint
+ * daftar kekurangan pada roadmap.
+ *
+ * Tidak ada flag `isReady`: statusnya diturunkan dari kedua angka ini lewat
+ * statusKesiapan(), supaya tidak ada dua sumber kebenaran yang bisa berbeda.
+ * `totalItems` nol berarti belum ada yang diperiksa — keadaan yang berbeda
+ * dari "semua sudah lengkap".
+ */
 export interface ReadinessSummary {
-  isReady: boolean;
   totalItems: number;
   incompleteItems: number;
-  items: ReadinessItem[];
 }
 
 /** Satu rincian pendukung pada kartu tahap, mis. "Dikerjakan: 3". */
