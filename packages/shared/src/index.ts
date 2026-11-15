@@ -194,15 +194,26 @@ export interface ReadinessSummary {
   items: ReadinessItem[];
 }
 
-/** Ringkasan satu tahap untuk kartu di Ruang Proyek. */
+/** Satu rincian pendukung pada kartu tahap, mis. "Dikerjakan: 3". */
+export interface StageDetail {
+  label: string;
+  value: number;
+}
+
+/**
+ * Ringkasan satu tahap untuk kartu di Ruang Proyek.
+ *
+ * Hanya memuat angka; kata-katanya disusun di frontend. Backend sengaja tidak
+ * mengirim kalimat jadi supaya tampilan bisa menyesuaikan lebar layar, dan
+ * supaya angka tidak punya dua sumber kebenaran yang bisa berbeda.
+ */
 export interface StageSummary {
   stage: ProjectStage;
-  /** Kosong berarti tahap ini belum diisi sama sekali. */
-  isEmpty: boolean;
-  /** Teks ringkas siap tampil, mis. "5 tugas selesai dari 8". */
-  headline: string;
+  /** Butir yang sudah lengkap pada tahap ini. */
   completed: number;
+  /** Total butir yang diperhitungkan. Nol berarti tahap belum diisi. */
   total: number;
+  details: StageDetail[];
 }
 
 /** Muatan utama halaman Ruang Proyek. */
