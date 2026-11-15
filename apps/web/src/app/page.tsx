@@ -1,4 +1,5 @@
 import { ContextHeader } from '@/components/ruang-proyek/context-header';
+import { ReadinessIndicator } from '@/components/ruang-proyek/readiness-indicator';
 import { StageSummaryCards } from '@/components/ruang-proyek/stage-summary-cards';
 import { PendingSection } from '@/components/ui/pending-section';
 
@@ -20,12 +21,7 @@ export default function RuangProyekPage() {
 
       <StageSummaryCards />
 
-      <PendingSection
-        title="Indikator Kesiapan Rilis"
-        description="Penanda ringkas siap atau belum, beserta jumlah butir yang masih kurang."
-        taskKey="F01-T03"
-        issue={6}
-      />
+      <ReadinessIndicator />
 
       <PendingSection
         title="Tab Plan – Dev – Release"
